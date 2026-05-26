@@ -2,7 +2,7 @@
 
 Built with React, TypeScript, R3F and Three.js 
 
-Live site: [bobbyroe.com](http://bobbyroe.com/)
+Live site: [bobbyroe.com](https://bobbyroe.github.io/bobbyroe.com-React-TS-Three/)
 
 ```
 pnpm install
