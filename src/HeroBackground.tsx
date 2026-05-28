@@ -70,7 +70,6 @@ function MouseLight() {
     const onMove = (e: MouseEvent) => {
       pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
       pointer.y = -((e.clientY / document.documentElement.scrollHeight) * 2 - 1);
-      // console.log(pointer, document.documentElement.scrollTop);
     };
     window.addEventListener("mousemove", onMove);
     return () => window.removeEventListener("mousemove", onMove);
@@ -100,6 +99,10 @@ function MouseLight() {
 function HeroGroup() {
   const ref = React.useRef<THREE.Group>(null!);
   const glb = useLoader(GLTFLoader, "./assets/duck.glb");
+  const woodMap = useLoader(THREE.TextureLoader, "./assets/wood/baseColor.jpg");
+  const woodNormalMap = useLoader(THREE.TextureLoader, "./assets/wood/normal.jpg");
+  const woodRoughnessMap = useLoader(THREE.TextureLoader, "./assets/wood/roughness.jpg");
+
   const entries = React.useMemo<MeshEntry[]>(() => {
     let duckGeometry: THREE.BufferGeometry = new THREE.IcosahedronGeometry(0.75, 1);
     let duckMaterial: THREE.Material = new THREE.MeshLambertMaterial({ color: 0xff0000 });
@@ -124,7 +127,12 @@ function HeroGroup() {
       },
       {
         geometry: new RoundedBoxGeometry(1, 1, 1, 4, 0.02),
-        material: new THREE.MeshStandardMaterial({ color: 0x8b4513 }),
+        material: new THREE.MeshStandardMaterial({ 
+          map: woodMap, 
+          normalMap: woodNormalMap, 
+          roughnessMap: woodRoughnessMap,
+          normalScale: new THREE.Vector2(6, 6), 
+        }),
         offset: Math.PI * 0.5,
         z: 0,
       },
