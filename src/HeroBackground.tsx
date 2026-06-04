@@ -1,7 +1,7 @@
 import * as THREE from "three/webgpu"
 import React from "react"
 import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber"
-import { color, screenUV } from 'three/tsl'
+import { color, mix, screenUV, time, uniform } from 'three/tsl'
 import { TeapotGeometry } from 'three/addons/geometries/TeapotGeometry.js'
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js'
 import { UltraHDRLoader } from 'three/addons/loaders/UltraHDRLoader.js'
@@ -28,7 +28,8 @@ function GradientBackground() {
   React.useEffect(() => {
     const bgColor = screenUV.y.mix(color('#112262'), color('#213f98'));
     const bgVignette = screenUV.distance(.35).remapClamp(0.0, 0.6).oneMinus();
-    scene.backgroundNode = bgColor.mul(bgVignette);
+    const goalColor = bgColor.mul(bgVignette);
+    scene.backgroundNode = mix(color(0x000000), goalColor, time.mul(0.1).clamp(0, 1));
     return () => {
       scene.backgroundNode = null;
     };
@@ -121,30 +122,39 @@ function HeroGroup() {
     return [
       {
         geometry: new THREE.TorusKnotGeometry(0.5, 0.2, 128, 64),
-        material: new THREE.MeshPhysicalMaterial({ roughness: 0.0, metalness: 1.0, thickness: 1.0 }),
+        material: new THREE.MeshPhysicalNodeMaterial({ 
+          roughness: 0.0, 
+          metalness: 1.0, 
+          thickness: 1.0,
+          opacityNode: time.sub(0.8).mul(0.15).clamp(0, 1),
+          transparent: true
+        }),
         offset: 0,
         z: 0,
       },
       {
         geometry: new RoundedBoxGeometry(1, 1, 1, 4, 0.02),
-        material: new THREE.MeshStandardMaterial({ 
+        material: new THREE.MeshStandardNodeMaterial({ 
           map: woodMap, 
           normalMap: woodNormalMap, 
           roughnessMap: woodRoughnessMap,
-          normalScale: new THREE.Vector2(6, 6), 
+          normalScale: new THREE.Vector2(6, 6),
+          opacityNode: time.sub(0.5).mul(0.1).clamp(0, 1),
+          transparent: true
         }),
         offset: Math.PI * 0.5,
         z: 0,
       },
       {
         geometry: new THREE.IcosahedronGeometry(0.75, 4),
-        material: new THREE.MeshPhysicalMaterial({
+        material: new THREE.MeshPhysicalNodeMaterial({
           roughness: 0.0,
           metalness: 0.0,
           transmission: 1.0,
           thickness: 1.0,
           transparent: true,
           flatShading: true,
+          opacityNode: time.sub(0.5).mul(0.1).clamp(0, 1)
         }),
         offset: Math.PI,
         z: 0,
@@ -157,14 +167,21 @@ function HeroGroup() {
       },
       {
         geometry: new THREE.IcosahedronGeometry(0.75, 1),
-        material: new THREE.MeshBasicMaterial({ color: 0x00ccff, wireframe: true }),
+        material: new THREE.MeshBasicNodeMaterial({ 
+          color: 0x00ccff, 
+          wireframe: true,
+          transparent: true,
+          opacityNode: time.sub(0.5).mul(0.1).clamp(0, 1),
+        }),
         offset: Math.PI * 2,
         z: 1.5,
       },
       {
         geometry: new TeapotGeometry(0.6),
-        material: new THREE.MeshPhysicalMaterial({
-          color: 0x0099ff, roughness: 0.0, metalness: 1.0, thickness: 1.0
+        material: new THREE.MeshPhysicalNodeMaterial({
+          color: 0x0099ff, roughness: 0.0, metalness: 1.0, thickness: 1.0,
+          opacityNode: time.sub(0.5).mul(0.1).clamp(0, 1),
+          transparent: true
         }),
         offset: 0,
         z: -1.5,
