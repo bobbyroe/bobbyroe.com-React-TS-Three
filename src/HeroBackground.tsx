@@ -1,7 +1,7 @@
 import * as THREE from "three/webgpu"
 import React from "react"
 import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber"
-import { color, mix, screenUV, time, uniform } from 'three/tsl'
+import { color, mix, screenUV, time } from 'three/tsl'
 import { TeapotGeometry } from 'three/addons/geometries/TeapotGeometry.js'
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js'
 import { UltraHDRLoader } from 'three/addons/loaders/UltraHDRLoader.js'
