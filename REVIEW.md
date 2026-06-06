@@ -1,87 +1,87 @@
-# Code Review Findings
+# Project Review: bobbyroe.r3f
 
-## 1. Silent fetch failure — no `.catch()` on YouTube oEmbed request
+**Date:** 2026-06-05
 
-**File:** `src/VideoFeature.tsx:32`
-
-No error handler on `fetchRandomVideoData().then(...)`. A network error or rejected promise leaves the component showing "Loading..." forever with no user feedback.
-
-**Scenario:** User is offline or YouTube's oEmbed endpoint is unreachable → `fetch()` throws → unhandled rejection → `setVideoData` never called → permanent "Loading..." state.
+**What it is:** A personal landing/course-marketing page for Bobby Roe (Robot Bobby). React + Vite + TypeScript frontend with a WebGPU Three.js canvas background. Clean, polished design.
 
 ---
 
-## 2. `res.ok` unchecked before `res.json()`
+## Bugs & Correctness
 
-**File:** `src/VideoFeature.tsx:30`
+**`HeroBackground.tsx` — useMemo missing dependencies (line 107)**
+```tsx
+}, [glb]); // missing: woodMap, woodNormalMap, woodRoughnessMap
+```
+The three wood texture loaders are consumed inside `useMemo` but not listed as dependencies. ESLint react-hooks would flag this; in practice it's fine since textures don't change, but it's technically a stale closure.
 
-Non-2xx HTTP responses (404 for a deleted/private video, 429 rate-limit) are parsed as JSON anyway. `data.html` comes back `undefined`, `setVideoData` is called with `{html: undefined, title: undefined}`, and `dangerouslySetInnerHTML={{ __html: undefined }}` renders a blank div — broken UI with no loading indicator.
+**`HeroBackground.tsx` — geometry/material leak on unmount**
+All the `new THREE.TorusKnotGeometry(...)`, `new THREE.MeshPhysicalNodeMaterial(...)`, etc. created inside `useMemo` are never disposed. When the component unmounts, WebGL resources leak. The `UltraHDREnvironment` cleanup is correct; the mesh entries aren't.
 
----
+**`VideoFeature.tsx` — no error handling on fetch (line 32)**
+```tsx
+fetchRandomVideoData().then(data => setVideoData(...))
+// no .catch — a failed oEmbed request leaves "Loading..." forever
+```
 
-## 3. Stale texture dependencies in `useMemo`
-
-**File:** `src/HeroBackground.tsx:173`
-
-`useMemo` dep array is `[glb]` but the factory reads `woodMap`, `woodNormalMap`, and `woodRoughnessMap`. If those loaders resolve after `glb` (Suspense boundary reset, error recovery), the wood `MeshStandardMaterial` holds stale or disposed texture references and the box renders black.
-
-**Fix:** Add the three texture values to the dep array.
-
----
-
-## 4. GPU memory leak — geometries and materials never disposed
-
-**File:** `src/HeroBackground.tsx:106`
-
-`TorusKnotGeometry`, `TeapotGeometry`, `IcosahedronGeometry`, `RoundedBoxGeometry`, and their associated materials are created inside `useMemo` but never `.dispose()`d. On HMR save or any component remount, new GPU resources are allocated and the old ones are orphaned.
-
-**Fix:** Return a cleanup function from `useMemo` (or a `useEffect`) that calls `.dispose()` on each entry's geometry and material.
+**`VideoFeature.tsx` — `videoUrls` recreated every render (line 10)**
+The array is declared inside the component body. Move it outside the component as a module-level `const`.
 
 ---
 
-## 5. Duck material borrowed from GLTFLoader cache — not cloned
+## Security
 
-**File:** `src/HeroBackground.tsx:115`
+**Missing `rel="noopener noreferrer"` on all `target="_blank"` links**
+Affects `Nav.tsx`, `HeroHeader.tsx`, `Course.tsx`, `VideoFeature.tsx`, `Footer.tsx`. Without this, opened tabs can navigate `window.opener` back (reverse tabnapping). Low real-world risk here, but it's a standard practice.
 
-`duckMaterial` is assigned directly from the GLB mesh (`duckMaterial = meshMaterial`) without cloning. If disposal is ever added to fix #4, `duckMaterial.dispose()` destroys the material inside the shared loader cache. A subsequent remount gets back a disposed material and the duck renders black.
-
-**Fix:** `duckMaterial = meshMaterial.clone()`.
-
----
-
-## 6. Unnecessary geometry clone doubles duck's GPU footprint
-
-**File:** `src/HeroBackground.tsx:113`
-
-`child.geometry.clone()` duplicates all vertex/normal/UV buffers in CPU and GPU memory. The original GLB geometry is unused afterward, so the clone is wasteful — especially on integrated GPUs and mobile.
-
-**Fix:** Use `child.geometry` directly (after fixing #5 so disposal is safe), or skip the clone and scale via a mesh's `scale` property instead.
+**`dangerouslySetInnerHTML` with oEmbed response (`VideoFeature.tsx:45`)**
+YouTube oEmbed is trustworthy, but the pattern is worth flagging for awareness. Sanitizing or using a YouTube embed URL directly would be the belt-and-suspenders approach.
 
 ---
 
-## 7. `videoUrls` declared inside component body — infinite-loop trap
+## Code Quality
 
-**File:** `src/VideoFeature.tsx:10`
+**`HeroBackground.tsx` — `React.*` namespace vs. named imports**
+This file uses `React.useEffect`, `React.useRef`, `React.useMemo` explicitly while all other components use the JSX transform with zero React imports. Pick one style.
 
-`videoUrls` is a static constant reconstructed on every render. As written it's harmless (the `useEffect` dep array is `[]`), but if `exhaustive-deps` lint is applied and `videoUrls` is added to the deps, the array is a new reference every render and the effect fires in an infinite fetch loop.
+**No `<Suspense>` boundary around `useLoader` calls**
+`UltraHDRLoader`, `GLTFLoader`, and `TextureLoader` all throw promises until resolved. Without a `<Suspense>` wrapping `<HeroGroup>` / `<UltraHDREnvironment>`, load errors can crash silently or cause unhandled promise rejections.
 
-**Fix:** Move `videoUrls` to module scope.
+**`key={index}` in `HeroGroup` (line 199)**
+Fine here since entries are static, but worth noting.
 
----
-
-## 8. `index < 4` magic number ties orbit behavior to array position
-
-**File:** `src/HeroBackground.tsx:55`
-
-Which meshes orbit is determined by their index in the `entries` array, not by a property on `MeshEntry`. Inserting or reordering an entry silently reassigns orbit behavior with no warning.
-
-**Fix:** Add an `orbit: boolean` field to `MeshEntry` and check that instead.
+**Dead code**
+- `Course.tsx:27` — commented-out `<li>` in JSX
+- `index.css:40-68` — large commented-out background and canvas slot blocks
 
 ---
 
-## 9. Redundant `position.z` write on every animation frame
+## Polish
 
-**File:** `src/HeroBackground.tsx:54`
+**`index.html` has template title and favicon**
+- `<title>Robot Bobby + R3F</title>` — looks like it was never updated from the scaffold
+- `<link rel="icon" href="/three.svg">` — still pointing to the default Vite R3F icon
 
-`ref.current.position.z = entry.z` runs inside `useFrame` for all 6 meshes at 60 fps. `entry.z` is a constant that never changes, so this is 360 no-op writes per second, each marking the mesh matrix dirty.
+**`HeroBackground.tsx` — mouse scroll offset is fragile (line 73)**
+```tsx
+pointer.y = -((e.clientY / document.documentElement.scrollHeight) * 2 - 1);
+```
+Dividing by `scrollHeight` instead of `window.innerHeight` corrects for the sticky canvas, but this breaks if content height changes dynamically (e.g., lazy-loaded sections). `getBoundingClientRect` on the canvas would be more robust.
 
-**Fix:** Set `position.z` once on mount in a `useEffect` and remove it from `useFrame`.
+**`Testimonials.tsx` — section id is `"testimonials"` but nav has no link to it**
+Nav links to `#course` and `#video` but not `#testimonials`.
+
+---
+
+## Summary
+
+| Area | Status |
+|---|---|
+| Core functionality | Solid |
+| WebGPU/R3F setup | Well done |
+| Memory management | Needs dispose() on mesh entries |
+| Error handling | Missing on video fetch |
+| Security hygiene | Add `noopener noreferrer` everywhere |
+| HTML metadata | Still template defaults (title, favicon) |
+| Dead code | Minor cleanup needed |
+
+The biggest actionable items are: **title/favicon**, **`rel="noopener noreferrer"`** sweep, **video fetch error handling**, and **geometry/material disposal** on unmount.
