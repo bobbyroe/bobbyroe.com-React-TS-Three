@@ -107,6 +107,8 @@ function HeroGroup() {
   const woodNormalMap = useLoader(THREE.TextureLoader, "./assets/wood/normal.jpg");
   const woodRoughnessMap = useLoader(THREE.TextureLoader, "./assets/wood/roughness.jpg");
 
+  const fadeInNode = time.sub(0.99).mul(0.25).clamp(0, 1);
+
   const entries = useMemo<MeshEntry[]>(() => {
     let duckGeometry: THREE.BufferGeometry = new THREE.IcosahedronGeometry(0.75, 1);
     let duckMaterial: THREE.Material = new THREE.MeshLambertMaterial({ color: 0xff0000 });
@@ -129,7 +131,7 @@ function HeroGroup() {
           roughness: 0.0,
           metalness: 1.0,
           thickness: 1.0,
-          opacityNode: time.sub(0.8).mul(0.15).clamp(0, 1),
+          opacityNode: fadeInNode,
           transparent: true
         }),
         offset: 0,
@@ -143,7 +145,7 @@ function HeroGroup() {
           normalMap: woodNormalMap,
           roughnessMap: woodRoughnessMap,
           normalScale: new THREE.Vector2(6, 6),
-          opacityNode: time.sub(0.5).mul(0.1).clamp(0, 1),
+          opacityNode: fadeInNode,
           transparent: true
         }),
         offset: Math.PI * 0.5,
@@ -159,7 +161,7 @@ function HeroGroup() {
           thickness: 1.0,
           transparent: true,
           flatShading: true,
-          opacityNode: time.sub(0.5).mul(0.1).clamp(0, 1)
+          opacityNode: fadeInNode,
         }),
         offset: Math.PI,
         z: 0,
@@ -178,7 +180,7 @@ function HeroGroup() {
           color: 0x00ccff,
           wireframe: true,
           transparent: true,
-          opacityNode: time.sub(0.5).mul(0.1).clamp(0, 1),
+          opacityNode: fadeInNode,
         }),
         offset: Math.PI * 2,
         z: 1.5,
@@ -188,7 +190,7 @@ function HeroGroup() {
         geometry: new TeapotGeometry(0.6),
         material: new THREE.MeshPhysicalNodeMaterial({
           color: 0x0099ff, roughness: 0.0, metalness: 1.0, thickness: 1.0,
-          opacityNode: time.sub(0.5).mul(0.1).clamp(0, 1),
+          opacityNode: fadeInNode,
           transparent: true
         }),
         offset: 0,
