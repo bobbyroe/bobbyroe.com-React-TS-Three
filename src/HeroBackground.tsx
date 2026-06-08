@@ -1,7 +1,8 @@
 import * as THREE from "three/webgpu"
 import { Suspense, useEffect, useMemo, useRef } from "react"
 import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber"
-import { color, mix, screenUV, time } from 'three/tsl'
+import { useProgress } from "@react-three/drei"
+import { color, mix, screenUV, time, uniform } from 'three/tsl'
 import { TeapotGeometry } from 'three/addons/geometries/TeapotGeometry.js'
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js'
 import { UltraHDRLoader } from 'three/addons/loaders/UltraHDRLoader.js'
@@ -107,7 +108,13 @@ function HeroGroup() {
   const woodNormalMap = useLoader(THREE.TextureLoader, "./assets/wood/normal.jpg");
   const woodRoughnessMap = useLoader(THREE.TextureLoader, "./assets/wood/roughness.jpg");
 
-  const fadeInNode = time.sub(0.99).mul(0.25).clamp(0, 1);
+  const fadeOpacity = useMemo(() => uniform(0), []);
+  const mountTime = useRef<number | null>(null);
+
+  useFrame(({ clock }) => {
+    if (mountTime.current === null) mountTime.current = clock.elapsedTime;
+    fadeOpacity.value = Math.min((clock.elapsedTime - mountTime.current) * 0.35, 1.0);
+  });
 
   const entries = useMemo<MeshEntry[]>(() => {
     let duckGeometry: THREE.BufferGeometry = new THREE.IcosahedronGeometry(0.75, 1);
@@ -116,8 +123,8 @@ function HeroGroup() {
     glb.scene.traverse((child) => {
       if (!(child instanceof THREE.Mesh)) return;
 
-      duckGeometry = child.geometry;
-      duckGeometry.scale(0.1, 0.1, 0.1);
+      duckGeometry = child.geometry.clone();
+      duckGeometry.scale(0.01, 0.01, 0.01);
       const meshMaterial = Array.isArray(child.material) ? child.material[0] : child.material;
       if (meshMaterial) {
         duckMaterial = meshMaterial.clone();
@@ -131,7 +138,7 @@ function HeroGroup() {
           roughness: 0.0,
           metalness: 1.0,
           thickness: 1.0,
-          opacityNode: fadeInNode,
+          opacityNode: fadeOpacity,
           transparent: true
         }),
         offset: 0,
@@ -145,7 +152,7 @@ function HeroGroup() {
           normalMap: woodNormalMap,
           roughnessMap: woodRoughnessMap,
           normalScale: new THREE.Vector2(6, 6),
-          opacityNode: fadeInNode,
+          opacityNode: fadeOpacity,
           transparent: true
         }),
         offset: Math.PI * 0.5,
@@ -153,15 +160,15 @@ function HeroGroup() {
         orbit: true,
       },
       {
-        geometry: new THREE.IcosahedronGeometry(0.75, 4),
+        geometry: new THREE.IcosahedronGeometry(0.75, 8),
         material: new THREE.MeshPhysicalNodeMaterial({
           roughness: 0.0,
           metalness: 0.0,
           transmission: 1.0,
           thickness: 1.0,
           transparent: true,
-          flatShading: true,
-          opacityNode: fadeInNode,
+          // flatShading: true,
+          opacityNode: fadeOpacity,
         }),
         offset: Math.PI,
         z: 0,
@@ -180,7 +187,7 @@ function HeroGroup() {
           color: 0x00ccff,
           wireframe: true,
           transparent: true,
-          opacityNode: fadeInNode,
+          opacityNode: fadeOpacity,
         }),
         offset: Math.PI * 2,
         z: 1.5,
@@ -190,7 +197,7 @@ function HeroGroup() {
         geometry: new TeapotGeometry(0.6),
         material: new THREE.MeshPhysicalNodeMaterial({
           color: 0x0099ff, roughness: 0.0, metalness: 1.0, thickness: 1.0,
-          opacityNode: fadeInNode,
+          opacityNode: fadeOpacity,
           transparent: true
         }),
         offset: 0,
@@ -198,7 +205,7 @@ function HeroGroup() {
         orbit: false,
       },
     ];
-  }, [glb, woodMap, woodNormalMap, woodRoughnessMap]);
+  }, [glb, woodMap, woodNormalMap, woodRoughnessMap, fadeOpacity]);
 
   useEffect(() => {
     return () => {
@@ -230,27 +237,46 @@ const canvasStyle: React.CSSProperties = {
   pointerEvents: "none",
 };
 
+const progressStyle: React.CSSProperties = {
+  position: "fixed",
+  bottom: "1rem",
+  right: "1rem",
+  color: "rgba(255,255,255,1.0)",
+  fontFamily: "monospace",
+  fontSize: "0.75rem",
+  pointerEvents: "none",
+  transition: "opacity 0.5s ease",
+  zIndex: 1,
+};
+
 function HeroBackground() {
+  const { active, progress } = useProgress();
+
   return (
-    <Canvas id="three-canvas" style={canvasStyle} camera={{ position: [0, 0, 35], fov: 35 }}
-      gl={async (props) => {
-        const renderer = new THREE.WebGPURenderer({
-          canvas: props.canvas instanceof HTMLCanvasElement ? props.canvas : undefined,
-          antialias: props.antialias ?? true,
-          alpha: props.alpha ?? true,
-          powerPreference: "high-performance",
-        });
-        await renderer.init();
-        return renderer;
-      }}>
-      <GradientBackground />
-      <Suspense fallback={null}>
-        <UltraHDREnvironment />
-        <HeroGroup />
-      </Suspense>
-      <hemisphereLight args={[0xffffff, 0x000000, 1.0]} />
-      <MouseLight />
-    </Canvas >
+    <>
+      <Canvas id="three-canvas" style={canvasStyle} camera={{ position: [0, 0, 35], fov: 35 }}
+        gl={async (props) => {
+          const renderer = new THREE.WebGPURenderer({
+            canvas: props.canvas instanceof HTMLCanvasElement ? props.canvas : undefined,
+            antialias: props.antialias ?? true,
+            alpha: props.alpha ?? true,
+            powerPreference: "high-performance",
+          });
+          await renderer.init();
+          return renderer;
+        }}>
+        <GradientBackground />
+        <Suspense fallback={null}>
+          <UltraHDREnvironment />
+          <HeroGroup />
+        </Suspense>
+        <hemisphereLight args={[0xffffff, 0x000000, 1.0]} />
+        <MouseLight />
+      </Canvas>
+      <div style={{ ...progressStyle, opacity: active ? 1 : 0 }}>
+        {Math.round(progress)}%
+      </div>
+    </>
   );
 }
 

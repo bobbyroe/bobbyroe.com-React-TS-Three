@@ -3,7 +3,7 @@ function Nav() {
     <nav className="nav">
     <div className="nav-inner">
       <a className="brand" href="#top">
-        <img src="assets/robotbobby-logo-128.png" alt="Robot Bobby" />
+        <img src="robotbobby-logo-128.png" alt="Robot Bobby" />
         <span className="brand-name">Bobby Roe</span>
       </a>
       <div className="nav-links">
