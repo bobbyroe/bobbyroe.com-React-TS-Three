@@ -228,6 +228,8 @@ function HeroGroup() {
   );
 }
 
+const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
 const canvasStyle: React.CSSProperties = {
   position: "absolute",
   inset: 0,
@@ -261,6 +263,7 @@ function HeroBackground() {
             antialias: props.antialias ?? true,
             alpha: props.alpha ?? true,
             powerPreference: "high-performance",
+            forceWebGL: isMobile,
           });
           await renderer.init();
           return renderer;
