@@ -673,6 +673,84 @@ body {
   background: #ff5050;
 }
 
+/* ───────── NEWSLETTER ───────── */
+.newsletter {
+  text-align: center;
+}
+
+.newsletter-inner {
+  max-width: 540px;
+  margin: 0 auto;
+  padding: clamp(40px, 6vh, 64px) clamp(24px, 4vw, 48px);
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  backdrop-filter: blur(8px);
+}
+
+.newsletter-heading {
+  font-family: var(--display);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: clamp(1.4rem, 2.8vw, 2rem);
+  margin: 0 0 12px;
+  color: var(--ink);
+}
+
+.newsletter-sub {
+  color: var(--ink-mute);
+  font-size: 15px;
+  max-width: 42ch;
+  margin: 0 auto 28px;
+  line-height: 1.6;
+}
+
+.newsletter-form {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.newsletter-input {
+  flex: 1;
+  min-width: 0;
+  max-width: 280px;
+  padding: 13px 18px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--ink);
+  font-family: var(--display);
+  font-size: 14px;
+  outline: none;
+  transition: border-color .2s;
+}
+
+.newsletter-input::placeholder {
+  color: var(--ink-dim);
+}
+
+.newsletter-input:focus {
+  border-color: var(--ink-mute);
+}
+
+.newsletter-confirm {
+  font-family: var(--display);
+  color: var(--accent);
+  font-size: 18px;
+  margin: 0;
+}
+
+.newsletter-error {
+  color: #ff6b6b;
+  font-family: var(--mono);
+  font-size: 12px;
+  margin: 12px 0 0;
+  text-transform: uppercase;
+  letter-spacing: 0.10em;
+}
+
 /* ───────── FOOTER ───────── */
 .footer {
   margin-top: clamp(80px, 14vh, 160px);

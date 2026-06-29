@@ -7,6 +7,7 @@ import IntroCard from "./IntroCard.tsx"
 import Nav from "./Nav.tsx"
 import VideoFeature from "./VideoFeature.tsx"
 import Footer from "./Footer.tsx"
+import NewsletterSignup from "./NewsletterSignup.tsx"
 
 function FadeIn({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -39,6 +40,7 @@ function App() {
       <FadeIn delay={1000}><Course /></FadeIn>
       <FadeIn><Testimonials /></FadeIn>
       <FadeIn><VideoFeature /></FadeIn>
+      <FadeIn><NewsletterSignup /></FadeIn>
       <FadeIn><Footer /></FadeIn>
     </>
   )
