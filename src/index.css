@@ -756,22 +756,6 @@ input:focus-visible {
   border-color: var(--accent);
 }
 
-.newsletter-confirm {
-  font-family: var(--display);
-  color: var(--accent);
-  font-size: 18px;
-  margin: 0;
-}
-
-.newsletter-error {
-  color: #ff6b6b;
-  font-family: var(--mono);
-  font-size: 12px;
-  margin: 12px 0 0;
-  text-transform: uppercase;
-  letter-spacing: 0.10em;
-}
-
 /* ───────── FOOTER ───────── */
 .footer {
   margin-top: clamp(80px, 14vh, 160px);
