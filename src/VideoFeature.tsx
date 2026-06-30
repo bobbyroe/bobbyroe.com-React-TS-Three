@@ -35,7 +35,6 @@ function VideoFeature() {
   return (
     <section className="section" id="video">
       <div className="section-head">
-        <span className="section-num">03 /</span>
         <h2 className="section-title">Featured from YouTube</h2>
         <a className="section-link" href="https://www.youtube.com/@robotbobby9" target="_blank">Channel</a>
       </div>

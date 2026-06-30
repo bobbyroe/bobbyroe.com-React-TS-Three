@@ -2,10 +2,9 @@ function Testimonials() {
   return (
     <section className="section" id="testimonials">
       <div className="section-head">
-        <span className="section-num">02 /</span>
         <h2 className="section-title">From the comments</h2>
-        {/* <a className="section-link" href="https://www.youtube.com/@robotbobby9/community" target="_blank"
-        >Read more</a> */}
+        <a className="section-link" href="https://www.youtube.com/@robotbobby9/community" target="_blank"
+        >More community</a>
       </div>
 
       <div className="quote-grid">

@@ -331,19 +331,12 @@ input:focus-visible {
 
 .section-head {
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto 1fr;
   align-items: end;
   gap: 16px;
   margin-bottom: 32px;
   padding-bottom: 18px;
   border-bottom: 1px solid var(--line);
-}
-
-.section-num {
-  font-family: var(--mono);
-  font-size: 12px;
-  color: var(--accent);
-  letter-spacing: 0.14em;
 }
 
 .section-title {
@@ -359,11 +352,12 @@ input:focus-visible {
 
 .section-link {
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.12em;
   color: var(--ink-mute);
   text-decoration: none;
+  justify-self: end;
 }
 
 .section-link:hover {
@@ -901,11 +895,8 @@ input:focus-visible {
     grid-template-columns: 1fr;
   }
 
-  .section-head {
-    grid-template-columns: auto 1fr;
-  }
-
   .section-link {
     grid-column: 1 / -1;
+    justify-self: start;
   }
 }

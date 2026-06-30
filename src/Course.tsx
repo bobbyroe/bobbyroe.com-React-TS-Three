@@ -2,7 +2,6 @@ function Course() {
   return (
     <section className="section" id="course">
       <div className="section-head">
-        <span className="section-num">01 /</span>
         <h2 className="section-title">Course</h2>
         <a className="section-link" href="https://robotbobby.thinkific.com/courses/learn-threejs-basics" target="_blank"
         >Open on Thinkific</a>
