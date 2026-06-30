@@ -28,7 +28,7 @@ function NewsletterSignup() {
 
   return (
     <section className="newsletter section">
-      <div className="newsletter-inner">
+      <div className="newsletter-inner" role="status" aria-live="polite">
         {status === "success" ? (
           <p className="newsletter-confirm">You're in! Check your inbox to confirm.</p>
         ) : (
@@ -38,7 +38,9 @@ function NewsletterSignup() {
               Get Three.js tips, project breakdowns, and new tutorial alerts. No spam, unsubscribe anytime.
             </p>
             <form className="newsletter-form" onSubmit={handleSubmit}>
+              <label htmlFor="newsletter-email" className="sr-only">Email address</label>
               <input
+                id="newsletter-email"
                 className="newsletter-input"
                 type="email"
                 required
