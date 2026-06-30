@@ -160,7 +160,7 @@ function HeroGroup() {
         orbit: true,
       },
       {
-        geometry: new THREE.IcosahedronGeometry(0.75, 8),
+        geometry: new THREE.IcosahedronGeometry(0.75, 4),
         material: new THREE.MeshPhysicalNodeMaterial({
           roughness: 0.0,
           metalness: 0.0,
