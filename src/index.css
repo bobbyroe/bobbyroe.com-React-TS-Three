@@ -723,6 +723,15 @@ input:focus-visible {
   line-height: 1.6;
 }
 
+.migration-guide-callout {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 15px;
+  color: var(--ink);
+  padding: 8px 0px;
+  margin: 0 auto 24px;
+}
+
 .newsletter-form {
   display: flex;
   gap: 10px;

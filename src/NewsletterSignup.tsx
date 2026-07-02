@@ -10,6 +10,9 @@ function NewsletterSignup() {
         <p className="newsletter-sub">
           Get Three.js tips, project breakdowns, and new tutorial alerts. No spam, unsubscribe anytime.
         </p>
+        <p className="migration-guide-callout">
+          Get the Three.js WebGL → WebGPU migration guide
+        </p>
         <form
           className="newsletter-form"
           action="https://buttondown.com/api/emails/embed-subscribe/roe"
