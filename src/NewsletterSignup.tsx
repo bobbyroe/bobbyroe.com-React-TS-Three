@@ -4,7 +4,7 @@ function NewsletterSignup() {
   }
 
   return (
-    <section className="newsletter section">
+    <section className="newsletter section" id="newsletter">
       <div className="newsletter-inner">
         <h2 className="newsletter-heading">Stay in the loop</h2>
         <p className="newsletter-sub">
