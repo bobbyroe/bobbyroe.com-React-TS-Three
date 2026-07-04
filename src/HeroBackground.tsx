@@ -107,10 +107,11 @@ function HeroGroup() {
   const woodMap = useLoader(THREE.TextureLoader, "./assets/wood/baseColor.jpg");
   const woodNormalMap = useLoader(THREE.TextureLoader, "./assets/wood/normal.jpg");
   const woodRoughnessMap = useLoader(THREE.TextureLoader, "./assets/wood/roughness.jpg");
-
+  const matcap = useLoader(THREE.TextureLoader, "./assets/matcap/silver.jpg");
   const fadeOpacity = useMemo(() => uniform(0), []);
   const mountTime = useRef<number | null>(null);
-
+  matcap.colorSpace = THREE.SRGBColorSpace;
+  
   useFrame(({ clock }) => {
     if (mountTime.current === null) mountTime.current = clock.elapsedTime;
     fadeOpacity.value = Math.min((clock.elapsedTime - mountTime.current) * 0.35, 1.0);
@@ -134,10 +135,8 @@ function HeroGroup() {
     return [
       {
         geometry: new THREE.TorusKnotGeometry(0.5, 0.2, 128, 64),
-        material: new THREE.MeshPhysicalNodeMaterial({
-          roughness: 0.0,
-          metalness: 1.0,
-          thickness: 1.0,
+        material: new THREE.MeshMatcapNodeMaterial({
+          matcap,
           opacityNode: fadeOpacity,
           transparent: true
         }),
@@ -165,9 +164,8 @@ function HeroGroup() {
           roughness: 0.0,
           metalness: 0.0,
           transmission: 1.0,
-          thickness: 1.0,
+          thickness: 0.6,
           transparent: true,
-          // flatShading: true,
           opacityNode: fadeOpacity,
         }),
         offset: Math.PI,
@@ -196,7 +194,7 @@ function HeroGroup() {
       {
         geometry: new TeapotGeometry(0.6),
         material: new THREE.MeshPhysicalNodeMaterial({
-          color: 0x0099ff, roughness: 0.0, metalness: 1.0, thickness: 1.0,
+          color: 0x0099ff, roughness: 0.0, metalness: 0.5, thickness: 1.0,
           opacityNode: fadeOpacity,
           transparent: true
         }),
@@ -253,7 +251,6 @@ const progressStyle: React.CSSProperties = {
 
 function HeroBackground() {
   const { active, progress } = useProgress();
-
   return (
     <>
       <Canvas id="three-canvas" style={canvasStyle} camera={{ position: [0, 0, 35], fov: 35 }}
@@ -270,10 +267,11 @@ function HeroBackground() {
         }}>
         <GradientBackground />
         <Suspense fallback={null}>
-          <UltraHDREnvironment />
+          {/* <UltraHDREnvironment /> */}
           <HeroGroup />
         </Suspense>
-        <hemisphereLight args={[0xffffff, 0x000000, 1.0]} />
+        <directionalLight args={[0xffffff, 1.0]} position={[1, -1, 5]}/>
+        <hemisphereLight args={[0xffffff, 0x000000, 2.0]} />
         <MouseLight />
       </Canvas>
       <div style={{ ...progressStyle, opacity: active ? 1 : 0 }}>
