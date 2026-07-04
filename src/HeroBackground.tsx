@@ -5,24 +5,24 @@ import { useProgress } from "@react-three/drei"
 import { color, mix, screenUV, time, uniform } from 'three/tsl'
 import { TeapotGeometry } from 'three/addons/geometries/TeapotGeometry.js'
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js'
-import { UltraHDRLoader } from 'three/addons/loaders/UltraHDRLoader.js'
+// import { UltraHDRLoader } from 'three/addons/loaders/UltraHDRLoader.js'
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
 
-function UltraHDREnvironment() {
-  const scene = useThree((state) => state.scene);
-  const hdr = useLoader(UltraHDRLoader, './assets/env/studio_garden_4k.jpg');
-  useEffect(() => {
-    if (!hdr) return;
-    hdr.mapping = THREE.EquirectangularReflectionMapping;
-    scene.environment = hdr;
-    scene.environmentIntensity = 2.0;
-    return () => {
-      scene.environment = null;
-      hdr.dispose?.()
-    }
-  }, [scene, hdr]);
-  return null;
-}
+// function UltraHDREnvironment() {
+//   const scene = useThree((state) => state.scene);
+//   const hdr = useLoader(UltraHDRLoader, './assets/env/studio_garden_4k.jpg');
+//   useEffect(() => {
+//     if (!hdr) return;
+//     hdr.mapping = THREE.EquirectangularReflectionMapping;
+//     scene.environment = hdr;
+//     scene.environmentIntensity = 2.0;
+//     return () => {
+//       scene.environment = null;
+//       hdr.dispose?.()
+//     }
+//   }, [scene, hdr]);
+//   return null;
+// }
 
 function GradientBackground() {
   const scene = useThree((state) => state.scene);
