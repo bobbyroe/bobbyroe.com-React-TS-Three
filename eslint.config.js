@@ -18,5 +18,12 @@ export default defineConfig([
     languageOptions: {
       globals: globals.browser,
     },
+    rules: {
+      // react-hooks v7 bundles React Compiler rules that assume state is only
+      // ever mutated via setState. This project mutates Three.js/TSL objects
+      // (scene, uniforms) directly inside useFrame/useEffect, which is the
+      // standard react-three-fiber pattern and not React Compiler-compatible.
+      'react-hooks/immutability': 'off',
+    },
   },
 ])
