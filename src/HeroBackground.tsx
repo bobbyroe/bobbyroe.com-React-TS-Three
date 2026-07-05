@@ -1,5 +1,5 @@
 import * as THREE from "three/webgpu"
-import { Suspense, useEffect, useMemo, useRef } from "react"
+import { Suspense, useEffect, useMemo, useRef, type RefObject } from "react"
 import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber"
 import { useProgress } from "@react-three/drei"
 import { color, mix, screenUV, time, uniform } from 'three/tsl'
@@ -45,23 +45,56 @@ type MeshEntry = {
   offset: number;
   z: number;
   orbit: boolean;
+  x?: number;
+  y?: number;
 }
 
-function HeroMesh({ entry }: { entry: MeshEntry }) {
+const BONK_RADIUS = 1.2;
+const BONK_PUSH_DISTANCE = 0.5;
+const BONK_TILT_ANGLE = 0.6;
+const BONK_STIFFNESS = 140;
+const BONK_DAMPING = 14;
+
+function HeroMesh({ entry, cursorLocal }: { entry: MeshEntry; cursorLocal: RefObject<THREE.Vector2> }) {
   const ref = useRef<THREE.Mesh>(null!)
   const t = useRef(0)
   const radius = 2
   const rate = 0.25
+
+  const basePos = useRef(new THREE.Vector2(entry.x ?? 0, entry.y ?? 0));
+  const pushDir = useRef(new THREE.Vector2(1, 0));
+  const tiltAxis = useRef(new THREE.Vector3());
+  const impact = useRef(0);
+  const impactVelocity = useRef(0);
 
   useEffect(() => {
     ref.current.position.z = entry.z;
   }, [entry.z]);
 
   useFrame((_, delta) => {
-    if (!entry.orbit) return;
-    t.current += delta;
-    ref.current.position.x = Math.cos(t.current * rate + entry.offset) * radius;
-    ref.current.position.y = Math.sin(t.current * rate + entry.offset) * radius;
+    if (entry.orbit) {
+      t.current += delta;
+      basePos.current.x = Math.cos(t.current * rate + entry.offset) * radius;
+      basePos.current.y = Math.sin(t.current * rate + entry.offset) * radius;
+    }
+
+    const dx = basePos.current.x - cursorLocal.current.x;
+    const dy = basePos.current.y - cursorLocal.current.y;
+    const dist = Math.hypot(dx, dy);
+    if (dist > 1e-4) {
+      pushDir.current.set(dx / dist, dy / dist);
+    }
+
+    const target = 1 - THREE.MathUtils.smoothstep(dist, 0, BONK_RADIUS);
+    const force = (target - impact.current) * BONK_STIFFNESS - impactVelocity.current * BONK_DAMPING;
+    impactVelocity.current += force * delta;
+    impact.current += impactVelocity.current * delta;
+
+    ref.current.position.x = basePos.current.x + pushDir.current.x * impact.current * BONK_PUSH_DISTANCE;
+    ref.current.position.y = basePos.current.y + pushDir.current.y * impact.current * BONK_PUSH_DISTANCE;
+
+    tiltAxis.current.set(-pushDir.current.y, pushDir.current.x, 0);
+    ref.current.quaternion.setFromAxisAngle(tiltAxis.current, impact.current * BONK_TILT_ANGLE);
   });
   return (
     <mesh ref={ref} geometry={entry.geometry} material={entry.material} />
@@ -111,6 +144,12 @@ function HeroGroup() {
   const mountTime = useRef<number | null>(null);
   const scrollPosY = useRef(0);
 
+  const { camera, pointer, raycaster } = useThree();
+  const bonkPlane = useMemo(() => new THREE.Plane(new THREE.Vector3(0, 0, 1), 0), []);
+  const worldHit = useRef(new THREE.Vector3());
+  const invMatrix = useRef(new THREE.Matrix4());
+  const cursorLocal = useRef(new THREE.Vector2());
+
   useEffect(() => {
     const scrollMult = 3;
     function handleScroll() {
@@ -119,11 +158,22 @@ function HeroGroup() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-  useFrame(({ clock }) => {
+
+  const groupRate = 0.15;
+  useFrame(({ clock }, delta) => {
     if (mountTime.current === null) mountTime.current = clock.elapsedTime;
     fadeOpacity.value = Math.min((clock.elapsedTime - mountTime.current) * 0.35, 1.0);
 
     ref.current.position.y = scrollPosY.current;
+    ref.current.rotation.y += delta * groupRate;
+    ref.current.updateMatrixWorld();
+
+    raycaster.setFromCamera(pointer, camera);
+    if (raycaster.ray.intersectPlane(bonkPlane, worldHit.current)) {
+      invMatrix.current.copy(ref.current.matrixWorld).invert();
+      worldHit.current.applyMatrix4(invMatrix.current);
+      cursorLocal.current.set(worldHit.current.x, worldHit.current.y);
+    }
   });
 
   const entries = useMemo<MeshEntry[]>(() => {
@@ -200,6 +250,8 @@ function HeroGroup() {
         offset: Math.PI * 2,
         z: 1.5,
         orbit: false,
+        x: 0.7,
+        y: 0.5,
       },
       {
         geometry: new TeapotGeometry(0.6),
@@ -211,6 +263,8 @@ function HeroGroup() {
         offset: 0,
         z: -1.5,
         orbit: false,
+        x: -0.6,
+        y: -0.4,
       },
     ];
   }, [glb, woodMap, woodNormalMap, woodRoughnessMap, fadeOpacity]);
@@ -224,14 +278,9 @@ function HeroGroup() {
     };
   }, [entries]);
 
-  const groupRate = 0.15;
-  useFrame((_, delta) => {
-    ref.current.rotation.y += delta * groupRate;
-  });
-
   return (
     <group ref={ref} position={[1.5, 1, 0]}>
-      {entries.map((entry, index) => <HeroMesh entry={entry} key={index} />)}
+      {entries.map((entry, index) => <HeroMesh entry={entry} cursorLocal={cursorLocal} key={index} />)}
     </group>
   );
 }

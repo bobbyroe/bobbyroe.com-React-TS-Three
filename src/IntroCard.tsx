@@ -5,8 +5,8 @@ type Segment = { text: string; bold?: boolean; muted?: boolean }
 const SEGMENTS: Segment[] = [
   { text: "I'm " },
   { text: "Bobby Roe", bold: true },
-  { text: ". I make videos about coding, art, and technology — and I'm here to help on your coding journey." },
-  { text: " With 20+ years as a creative developer; I've helped thousands learn to code and create art.", muted: true },
+  { text: ". I make videos about coding, art, and technology — and I'm here to help on your coding journey" },
+  { text: ". With 20+ years as a creative developer; I've helped thousands learn to code and create art.", muted: true },
 ]
 
 type Token = { text: string; segIndex: number }
