@@ -5,24 +5,25 @@ import { useProgress } from "@react-three/drei"
 import { color, mix, screenUV, time, uniform } from 'three/tsl'
 import { TeapotGeometry } from 'three/addons/geometries/TeapotGeometry.js'
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js'
-// import { UltraHDRLoader } from 'three/addons/loaders/UltraHDRLoader.js'
+import { UltraHDRLoader } from 'three/addons/loaders/UltraHDRLoader.js'
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
 
-// function UltraHDREnvironment() {
-//   const scene = useThree((state) => state.scene);
-//   const hdr = useLoader(UltraHDRLoader, './assets/env/studio_garden_4k.jpg');
-//   useEffect(() => {
-//     if (!hdr) return;
-//     hdr.mapping = THREE.EquirectangularReflectionMapping;
-//     scene.environment = hdr;
-//     scene.environmentIntensity = 2.0;
-//     return () => {
-//       scene.environment = null;
-//       hdr.dispose?.()
-//     }
-//   }, [scene, hdr]);
-//   return null;
-// }
+function UltraHDREnvironment() {
+  const scene = useThree((state) => state.scene);
+  const hdr = useLoader(UltraHDRLoader, './assets/env/royal_esplanade_2k.hdr.jpg');
+  useEffect(() => {
+    if (!hdr) return;
+    hdr.mapping = THREE.EquirectangularReflectionMapping;
+    hdr.colorSpace = THREE.SRGBColorSpace;
+    scene.environment = hdr;
+    scene.environmentIntensity = 2.0;
+    return () => {
+      scene.environment = null;
+      hdr.dispose?.()
+    }
+  }, [scene, hdr]);
+  return null;
+}
 
 function GradientBackground() {
   const scene = useThree((state) => state.scene);
@@ -107,10 +108,8 @@ function HeroGroup() {
   const woodMap = useLoader(THREE.TextureLoader, "./assets/wood/baseColor.jpg");
   const woodNormalMap = useLoader(THREE.TextureLoader, "./assets/wood/normal.jpg");
   const woodRoughnessMap = useLoader(THREE.TextureLoader, "./assets/wood/roughness.jpg");
-  const matcap = useLoader(THREE.TextureLoader, "./assets/matcap/silver.jpg");
   const fadeOpacity = useMemo(() => uniform(0), []);
   const mountTime = useRef<number | null>(null);
-  matcap.colorSpace = THREE.SRGBColorSpace;
   
   useFrame(({ clock }) => {
     if (mountTime.current === null) mountTime.current = clock.elapsedTime;
@@ -134,9 +133,10 @@ function HeroGroup() {
 
     return [
       {
-        geometry: new THREE.TorusKnotGeometry(0.5, 0.2, 128, 64),
-        material: new THREE.MeshMatcapNodeMaterial({
-          matcap,
+        geometry: new THREE.TorusKnotGeometry(0.5, 0.2, 128, 32),
+        material: new THREE.MeshStandardNodeMaterial({
+          roughness: 0.0,
+          metalness: 1.0,
           opacityNode: fadeOpacity,
           transparent: true
         }),
@@ -267,11 +267,9 @@ function HeroBackground() {
         }}>
         <GradientBackground />
         <Suspense fallback={null}>
-          {/* <UltraHDREnvironment /> */}
+          <UltraHDREnvironment />
           <HeroGroup />
         </Suspense>
-        <directionalLight args={[0xffffff, 1.0]} position={[1, -1, 5]}/>
-        <hemisphereLight args={[0xffffff, 0x000000, 2.0]} />
         <MouseLight />
       </Canvas>
       <div style={{ ...progressStyle, opacity: active ? 1 : 0 }}>
