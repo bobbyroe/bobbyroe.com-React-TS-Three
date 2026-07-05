@@ -75,15 +75,14 @@ function MouseLight() {
   useEffect(() => {
     const onMove = (e: MouseEvent) => {
       pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
-      pointer.y = -((e.clientY / document.documentElement.scrollHeight) * 2 - 1);
+      pointer.y = -((e.clientY / window.innerHeight) * 2 - 1);
     };
     window.addEventListener("mousemove", onMove);
     return () => window.removeEventListener("mousemove", onMove);
   }, []);
   const plane = useMemo(
-    () => new THREE.Plane(new THREE.Vector3(0, 0, 1), 0),
-    []
-  );
+    () => new THREE.Plane(new THREE.Vector3(0, 0, 1), 0)
+    , []);
 
   const mouseWorld = useRef(new THREE.Vector3());
 
@@ -110,10 +109,21 @@ function HeroGroup() {
   const woodRoughnessMap = useLoader(THREE.TextureLoader, "./assets/wood/roughness.jpg");
   const fadeOpacity = useMemo(() => uniform(0), []);
   const mountTime = useRef<number | null>(null);
-  
+  const scrollPosY = useRef(0);
+
+  useEffect(() => {
+    const scrollMult = 3;
+    function handleScroll() {
+      scrollPosY.current = (window.scrollY / window.innerHeight) * scrollMult;
+    }
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
   useFrame(({ clock }) => {
     if (mountTime.current === null) mountTime.current = clock.elapsedTime;
     fadeOpacity.value = Math.min((clock.elapsedTime - mountTime.current) * 0.35, 1.0);
+
+    ref.current.position.y = scrollPosY.current;
   });
 
   const entries = useMemo<MeshEntry[]>(() => {
@@ -220,7 +230,7 @@ function HeroGroup() {
   });
 
   return (
-    <group ref={ref} position={[1.5, 7, 0]}>
+    <group ref={ref} position={[1.5, 1, 0]}>
       {entries.map((entry, index) => <HeroMesh entry={entry} key={index} />)}
     </group>
   );
@@ -229,7 +239,7 @@ function HeroGroup() {
 const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
 const canvasStyle: React.CSSProperties = {
-  position: "absolute",
+  position: "fixed",
   inset: 0,
   zIndex: -1,
   width: "100%",
@@ -253,7 +263,7 @@ function HeroBackground() {
   const { active, progress } = useProgress();
   return (
     <>
-      <Canvas id="three-canvas" style={canvasStyle} camera={{ position: [0, 0, 35], fov: 35 }}
+      <Canvas id="three-canvas" style={canvasStyle} camera={{ position: [0, 0, 12], fov: 35 }}
         gl={async (props) => {
           const renderer = new THREE.WebGPURenderer({
             canvas: props.canvas instanceof HTMLCanvasElement ? props.canvas : undefined,
