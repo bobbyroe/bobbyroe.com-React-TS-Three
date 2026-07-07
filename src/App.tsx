@@ -31,6 +31,14 @@ function FadeIn({ children, delay = 0 }: { children: React.ReactNode; delay?: nu
 }
 
 function App() {
+  useEffect(() => {
+    const hash = window.location.hash;
+
+    if (hash) {
+      const element = document.querySelector(hash);
+      element?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, []);
   return (
     <>
       <HeroBackground />
