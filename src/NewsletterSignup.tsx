@@ -7,11 +7,11 @@ function NewsletterSignup() {
     <section className="newsletter section" id="newsletter">
       <div className="newsletter-inner">
         <h2 className="newsletter-heading">Stay in the loop</h2>
-        <p className="newsletter-sub">
-          Get Three.js tips, project breakdowns, and new tutorial alerts. No spam, unsubscribe anytime.
-        </p>
         <p className="migration-guide-callout">
           Get the Three.js WebGL → WebGPU migration guide
+        </p>
+        <p className="newsletter-sub">
+          Also get Three.js tips, project breakdowns, and new tutorial alerts. No spam, unsubscribe anytime.
         </p>
         <form
           className="newsletter-form"
