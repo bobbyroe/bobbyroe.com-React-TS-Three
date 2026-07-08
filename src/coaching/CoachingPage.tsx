@@ -5,7 +5,7 @@ import CoachingAbout from "./CoachingAbout.tsx"
 import CoachingPricing from "./CoachingPricing.tsx"
 import CoachingApplication from "./CoachingApplication.tsx"
 import CoachingGuarantee from "./CoachingGuarantee.tsx"
-import Footer from "./Footer.tsx"
+import Footer from "../Footer.tsx"
 
 function CoachingPage() {
   return (
