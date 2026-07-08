@@ -7,6 +7,7 @@ function Nav() {
         <span className="brand-name">Bobby Roe</span>
       </a>
       <div className="nav-links">
+        <a href="coaching.html">Coaching</a>
         <a href="#course">Course</a>
         <a href="#video">Videos</a>
         <a className="opt" href="https://github.com/bobbyroe" target="_blank">GitHub</a>

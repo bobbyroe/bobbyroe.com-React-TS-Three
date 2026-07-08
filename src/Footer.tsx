@@ -12,6 +12,7 @@ function Footer () {
       <div className="footer-col">
         <h5>Learn</h5>
         <ul>
+          <li><a href="coaching.html">Coaching</a></li>
           <li><a href="https://robotbobby.thinkific.com/courses/learn-threejs-basics" target="_blank"
             >Course</a></li>
           <li><a href="https://www.youtube.com/@robotbobby9" target="_blank">YouTube</a></li>

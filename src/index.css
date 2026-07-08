@@ -1,6 +1,6 @@
 :root {
   --ink: #f4ead8;
-  --ink-mute: #b8b1a2;
+  --ink-mute: #cdc6b6;
   --ink-dim: #7e7a71;
   --bg-0: #050912;
   --bg-1: #0a132a;
@@ -160,6 +160,7 @@ input:focus-visible {
 .nav-links a:nth-child(3) { animation-delay: 0.25s; }
 .nav-links a:nth-child(4) { animation-delay: 0.35s; }
 .nav-links a:nth-child(5) { animation-delay: 0.45s; }
+.nav-links a:nth-child(6) { animation-delay: 0.55s; }
 
 /* ───────── HERO ───────── */
 .hero {
