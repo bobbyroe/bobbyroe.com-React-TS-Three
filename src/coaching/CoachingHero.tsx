@@ -12,7 +12,7 @@ function CoachingHero() {
         For the developer who wants to add 3D to their portfolio, the newbie stuck between
         tutorials and courses, and the dev building a specific project who wants a pair of seasoned eyes on it.
       </p>
-      <a className="btn btn-primary" href="https://calendly.com/robotbobby/consult" target="_blank" rel="noreferrer">
+      <a className="btn btn-primary" href="https://cal.com/bobby-roe-uqjy1o/disco" target="_blank" rel="noreferrer">
         Book a Free Consultation <span className="arrow">→</span>
       </a>
     </header>
