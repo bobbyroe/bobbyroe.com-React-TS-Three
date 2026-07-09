@@ -1,4 +1,5 @@
 import CoachingNav from "./CoachingNav.tsx"
+import CoachingHeroBackground from "./CoachingHeroBackground.tsx"
 import CoachingHero from "./CoachingHero.tsx"
 import Offerings from "./Offerings.tsx"
 import CoachingAbout from "./CoachingAbout.tsx"
@@ -10,6 +11,7 @@ import Footer from "../Footer.tsx"
 function CoachingPage() {
   return (
     <>
+      <CoachingHeroBackground />
       <CoachingNav />
       <CoachingHero />
       <Offerings />
